@@ -1,0 +1,12 @@
+package com.miro.fxservice.exception;
+
+public enum ErrorCode {
+    CLIENT_NOT_FOUND,
+    BALANCE_NOT_FOUND,
+    INSUFFICIENT_FUNDS,
+    PROVIDER_FAILURE,
+    VALIDATION_ERROR,
+    METHOD_NOT_ALLOWED,
+    UNSUPPORTED_MEDIA_TYPE,
+    INTERNAL_ERROR
+}
