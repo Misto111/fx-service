@@ -1,0 +1,6 @@
+services:
+  fx-service:
+    build: .
+    image: fx-service:latest
+    ports:
+      - "${HOST_PORT:-8080}:8080"

@@ -29,6 +29,7 @@ The service exposes REST endpoints to:
 
 * Java 23
 * Maven wrapper included in the project
+* Docker, if you prefer running the service in a container
 
 ### Start the application
 
@@ -48,6 +49,26 @@ The application starts on:
 
 ```text
 http://localhost:8080
+```
+
+### Start with Docker Compose
+
+From the project root:
+
+```bash
+docker compose up --build
+```
+
+This builds the Java 23 Docker image and starts the service on:
+
+```text
+http://localhost:8080
+```
+
+If port `8080` is already busy, choose another host port:
+
+```bash
+HOST_PORT=18080 docker compose up --build
 ```
 
 Swagger UI is available at:
@@ -463,7 +484,12 @@ Covered scenarios:
 
 * successful conversion through the REST controller
 * idempotency replay through the REST controller
+* concurrent idempotency replay through the REST controller
 * insufficient funds through the REST controller
+* unknown client and missing balance errors
+* invalid request validation
+* provider failure handling
+* conversion history filtering by client and date
 
 The FX provider is mocked in integration tests so the tests do not depend on network availability or live exchange rates.
 
@@ -497,7 +523,25 @@ http://localhost:8080/v3/api-docs
 
 ## Docker
 
-A Dockerfile is included for containerized execution.
+A Dockerfile and Docker Compose file are included for containerized execution.
+
+Start with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+If port `8080` is already busy:
+
+```bash
+HOST_PORT=18080 docker compose up --build
+```
+
+Stop with:
+
+```bash
+docker compose down
+```
 
 Build image:
 
@@ -590,13 +634,11 @@ This follows the assignment scope.
 
 ## What I would do with more time
 
-* Add PostgreSQL profile and Docker Compose with PostgreSQL.
-* Add Testcontainers integration tests against PostgreSQL.
-* Add more integration tests for conversion history filters.
-* Add provider fallback strategy if the selected FX provider is unavailable.
+* Add PostgreSQL profile and Testcontainers-based integration tests.
+* Add payload conflict detection for reused idempotency keys with different request bodies.
+* Add a provider fallback strategy if the selected FX provider is unavailable.
 * Add a production-grade cache implementation such as Caffeine.
 * Add a ledger/audit table for balance movements.
 * Add request/response examples to the OpenAPI documentation.
 * Add structured logging with correlation ids.
 * Add metrics for provider latency, cache hit ratio, conversion count, and failed conversions.
-* Add more detailed idempotency conflict handling, for example detecting same key with different request payload.

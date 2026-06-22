@@ -70,8 +70,8 @@ class ConversionServiceTest {
         when(conversionRepository.findByClientIdAndIdempotencyKey("CLIENT-001", "unit-key-001"))
                 .thenReturn(Optional.empty());
 
-        when(clientRepository.existsByClientId("CLIENT-001"))
-                .thenReturn(true);
+        when(clientRepository.findByClientIdForUpdate("CLIENT-001"))
+                .thenReturn(Optional.of(client));
 
         when(balanceRepository.findBalancesForUpdate(eq("CLIENT-001"), anyCollection()))
                 .thenReturn(List.of(usdBalance, eurBalance));
@@ -134,6 +134,9 @@ class ConversionServiceTest {
         when(conversionRepository.findByClientIdAndIdempotencyKey("CLIENT-001", "unit-key-001"))
                 .thenReturn(Optional.of(existingConversion));
 
+        when(clientRepository.findByClientIdForUpdate("CLIENT-001"))
+                .thenReturn(Optional.of(client));
+
         when(balanceRepository.findByClient_ClientIdOrderByCurrencyAsc("CLIENT-001"))
                 .thenReturn(List.of(eurBalance, usdBalance));
 
@@ -147,7 +150,6 @@ class ConversionServiceTest {
         assertThat(response.sourceAmount()).isEqualByComparingTo("100.0000");
         assertThat(response.targetAmount()).isEqualByComparingTo("90.0000");
 
-        verify(clientRepository, never()).existsByClientId(anyString());
         verify(balanceRepository, never()).findBalancesForUpdate(anyString(), anyCollection());
         verify(rateService, never()).getRate(anyString(), anyString());
         verify(conversionRepository, never()).save(any());
@@ -169,8 +171,8 @@ class ConversionServiceTest {
         when(conversionRepository.findByClientIdAndIdempotencyKey("CLIENT-001", "unit-key-insufficient"))
                 .thenReturn(Optional.empty());
 
-        when(clientRepository.existsByClientId("CLIENT-001"))
-                .thenReturn(true);
+        when(clientRepository.findByClientIdForUpdate("CLIENT-001"))
+                .thenReturn(Optional.of(client));
 
         when(balanceRepository.findBalancesForUpdate(eq("CLIENT-001"), anyCollection()))
                 .thenReturn(List.of(usdBalance, eurBalance));

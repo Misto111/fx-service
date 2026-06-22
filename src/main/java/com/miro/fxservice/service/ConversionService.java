@@ -60,27 +60,26 @@ public class ConversionService {
     ) {
         String normalizedClientId = normalizeClientId(clientId);
         String normalizedIdempotencyKey = normalizeIdempotencyKey(idempotencyKey);
+        BigDecimal sourceAmount = normalizeMoney(request.sourceAmount());
+        String sourceCurrency = normalizeCurrency(request.sourceCurrency());
+        String targetCurrency = normalizeCurrency(request.targetCurrency());
 
         if (normalizedIdempotencyKey != null) {
+            lockClientOrThrow(normalizedClientId);
+
             var existingConversion = conversionRepository
                     .findByClientIdAndIdempotencyKey(normalizedClientId, normalizedIdempotencyKey);
 
             if (existingConversion.isPresent()) {
                 return toResponse(existingConversion.get(), getCurrentBalances(normalizedClientId));
             }
-        }
-
-        if (!clientRepository.existsByClientId(normalizedClientId)) {
+        } else if (!clientRepository.existsByClientId(normalizedClientId)) {
             throw new ApiException(
                     HttpStatus.NOT_FOUND,
                     ErrorCode.CLIENT_NOT_FOUND,
                     "Client not found: " + normalizedClientId
             );
         }
-
-        BigDecimal sourceAmount = normalizeMoney(request.sourceAmount());
-        String sourceCurrency = normalizeCurrency(request.sourceCurrency());
-        String targetCurrency = normalizeCurrency(request.targetCurrency());
 
         List<String> currenciesToLock = sourceCurrency.equals(targetCurrency)
                 ? List.of(sourceCurrency)
@@ -145,6 +144,15 @@ public class ConversionService {
         Conversion savedConversion = conversionRepository.save(conversion);
 
         return toResponse(savedConversion, getCurrentBalances(normalizedClientId));
+    }
+
+    private void lockClientOrThrow(String clientId) {
+        clientRepository.findByClientIdForUpdate(clientId)
+                .orElseThrow(() -> new ApiException(
+                        HttpStatus.NOT_FOUND,
+                        ErrorCode.CLIENT_NOT_FOUND,
+                        "Client not found: " + clientId
+                ));
     }
 
     @Transactional(readOnly = true)
