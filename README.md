@@ -634,11 +634,9 @@ This follows the assignment scope.
 
 ## What I would do with more time
 
-* Add PostgreSQL profile and Testcontainers-based integration tests.
+* Add PostgreSQL profile
 * Add payload conflict detection for reused idempotency keys with different request bodies.
 * Add a provider fallback strategy if the selected FX provider is unavailable.
-* Add a production-grade cache implementation such as Caffeine.
-* Add a ledger/audit table for balance movements.
 * Add request/response examples to the OpenAPI documentation.
-* Add structured logging with correlation ids.
+* Add structured logging.
 * Add metrics for provider latency, cache hit ratio, conversion count, and failed conversions.
